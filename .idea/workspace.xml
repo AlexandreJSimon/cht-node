@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39eb9225-3d32-4620-aa4a-6c8ec677034e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/assets/less/chat.less" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/css/style.css" afterPath="$PROJECT_DIR$/app/assets/css/style.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/infra/sqlite/chat" afterPath="$PROJECT_DIR$/app/infra/sqlite/chat" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/chat/index.ejs" afterPath="$PROJECT_DIR$/app/views/chat/index.ejs" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -152,7 +149,7 @@
   <component name="NodeModulesDirectoryManager">
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="561" />
     <option name="y" value="37" />
     <option name="width" value="1936" />
@@ -302,15 +299,15 @@
       <workItem from="1514655364399" duration="9931000" />
       <workItem from="1514910520885" duration="7052000" />
       <workItem from="1515018397462" duration="2430000" />
-      <workItem from="1515100420705" duration="6811000" />
+      <workItem from="1515100420705" duration="7122000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="95306000" />
+    <option name="totallyTimeSpent" value="95617000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15700738" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
