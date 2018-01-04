@@ -5,14 +5,17 @@
 </head>
 <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap.css">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/chat.css">
 <link rel=icon href="/img/favicon.png">
 <script src="/socket.io/socket.io.js"></script>
 <script src="/libs/jquery/jquery-1.11.1.js"></script>
 <body>
 
-<ul id="messages"></ul>
 
-<ul id="messages_private" style="display: none;"></ul>
+<div class="mensages-base">
+    <ul id="messages"></ul>
+    <ul id="messages_private" style="display: none;"></ul>
+</div>
 
 <ul id="users">
     <li id="all" class="online">Todos</li>
@@ -113,32 +116,29 @@
 //            if(code[1].trim() == 'refresh'){
 //                location.reload();
 //            }else{
-                elChild = document.createElement("li");
-                elChild.innerHTML = msg;
-                document.getElementById('messages_private').appendChild(elChild);
+            elChild = document.createElement("li");
+            elChild.innerHTML = msg;
+            document.getElementById('messages_private').appendChild(elChild);
 //                audio.play();
 //            }
         });
-        var height = 0;
+
         //Public Message
         socket.on('chat message', function(msg){
 //            var code = msg.split(':');
 //            if(code[1].trim() == 'refresh'){
 //                location.reload();
 //            }else{
-                elChild = document.createElement("li");
-                elChild.innerHTML = msg;
-                document.getElementById('messages').appendChild(elChild);
+            elChild = document.createElement("li");
+            elChild.innerHTML = msg;
+            document.getElementById('messages').appendChild(elChild);
+            var elb = document.querySelector('.mensages-base');
+            var elm = document.querySelector('.mensages-base ul');
+            var ell = document.querySelector('.mensages-base ul li');
 
-
-            $('#messages li').each(function(i, value){
-                height += parseInt($(this).height());
-            });
-
-            height += '';
-
-            $('#messages').animate({scrollTop: height});
-
+            if((elm.clientHeight - elb.clientHeight) - ell.clientHeight == elb.scrollTop || elm.clientHeight - ell.clientHeight <= elb.clientHeight) {
+                elb.scrollTop = elb.scrollHeight;
+            }
 //                audio.play();
 //            }
         });
