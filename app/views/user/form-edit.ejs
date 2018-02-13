@@ -1,0 +1,35 @@
+<div class="page-editar-usuario">
+    <h2>Editar Usuario</h2>
+    <form class="form-edit-user" action="/editar/user?idUser=<%= user[0].id; %>" method="post">
+        <div class="form-group">
+            <label for="name">Nome</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="" value="<%= user[0].name; %>">
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="" value="<%= user[0].email; %>">
+        </div>
+        <div class="form-group">
+            <label for="password">Senha</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="">
+        </div>
+        <button type="submit" class="btn btn-primary btn-editar">Editar</button>
+    </form>
+</div>
+<script>
+    $(function () {
+        $('.form-edit-user').on('submit',function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                dataType: 'json',
+                data: $(this).serialize(),
+                success: function (data) {
+                    alert(data);
+                    console.log(data);
+                }
+            });
+        });
+    });
+</script>

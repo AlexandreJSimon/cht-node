@@ -4,6 +4,10 @@ module.exports = function (app) {
     });
 
     app.post('/',function (req,res) {
-        res.redirect('/chat');
+        app.get('passport').authenticate('local', {
+            successRedirect: '/chat',
+            failureRedirect: '/',
+            failureFlash: true
+        })(req, res);
     });
 };

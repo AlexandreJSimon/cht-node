@@ -4,134 +4,140 @@
     <title>chat</title>
 </head>
 <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap.css">
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/chat.css">
 <link rel=icon href="/img/favicon.png">
 <script src="/socket.io/socket.io.js"></script>
 <script src="/libs/jquery/jquery-1.11.1.js"></script>
 <body>
-
-
-<div class="mensages-base">
-    <ul id="messages"></ul>
-    <ul id="messages_private" style="display: none;"></ul>
-</div>
-
-<ul id="users">
-    <li id="all" class="online">Todos</li>
-    <% for(var i=0; i < users.length; i++){ %>
-    <li id="<%= users[i].socketId; %>" class="online"><%= users[i].name; %> Online</li>
-    <% } %>
-</ul>
-
-<form action="" id="form_msg">
-    <input id="m" autocomplete="off" /><button>Send</button>
-</form>
-
-<form action="" id="form_msg_private" style="display: none;">
-    <input id="m_private" autocomplete="off" data-socketId="" /><button>Send</button>
-</form>
-
-
-<div class="modal fade" id="setNameModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="setNameModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="setNameModalLabel">Digite seu nome</h5>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label for="setNameInput" class="col-form-label">Nome:</label>
-                        <input type="text" class="form-control" id="setNameInput">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="setNameButton">Salvar</button>
-            </div>
-        </div>
+<header>
+    <nav class="user-info">
+        <ul>
+            <li>
+                <img src="https://s.gravatar.com/avatar/<%= app.get('crypto').createHash('md5').update(user[0].email).digest("hex") %>?s=80&r=g" alt=""><%= user[0].name; %>
+            </li>
+        </ul>
+    </nav>
+    <div class="config-account">
+        <a href="/editar/user" class="config edit-user"><i class="fa fa-gear"></i></a>
     </div>
-</div>
+</header>
+<main class="content">
+    <div class="chat-content">
+        <div class="mensages-base">
+            <ul id="messages">
 
-
+            </ul>
+        </div>
+        <form action="" id="form_msg">
+            <i id="typing">Digitando...</i>
+            <input id="m" autocomplete="off" />
+        </form>
+    </div>
+    <div class="page-content"></div>
+</main>
+<nav class="users">
+    <ul id="users">
+        <li>
+            <input type="text" class="search-users" id="search-users" onkeyup="filterUsers()" placeholder="Buscar conversa">
+        </li>
+        <%
+        var c = 0;
+        for(var i=0; i < users.length; i++){
+        if(users[i].id != user[0].id){
+            c++;
+        %>
+        <li id="<%= users[i].id; %>" class="user-contact <%= users[i].status ? 'connected' : ''; %> <%= c == 1 ? 'active' : ''; %> user user-<%= users[i].id; %>">
+            <img src="https://s.gravatar.com/avatar/<%= app.get('crypto').createHash('md5').update(users[i].email).digest("hex") %>?s=80&r=g" alt=""><span><%= users[i].name; %></span>
+        </li>
+        <%
+        }
+        }
+        %>
+    </ul>
+</nav>
 <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 <script src="/libs/cookies/Cookies.js"></script>
 <script>
+
+    function filterUsers() {
+        // Declare variables
+        var input, filter, ul, li, a, i;
+        input = document.getElementById('search-users');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("users");
+        li = ul.querySelectorAll('.user-contact');
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("span")[0];
+            if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+
     $(function () {
-        $('#setNameModal').modal('show');
-
-        var button = document.getElementById("setNameButton");
-        button.addEventListener("click",function(e){
-            var name = document.getElementById("setNameInput").value;
-            socket.emit('setName', name);
-            $('#setNameModal').modal('hide');
-        },false);
-
-        //var audio = new Audio('/assets/songs/cow.wav');
+        var audio = new Audio('/songs/cow.wav');
         var socket = io();
+        socket.on('redirect', function(destination) {
+            window.location.href = destination;
+        });
 
-        //Public
-        document.getElementById('form_msg').onsubmit = function(){
-            var input = document.getElementById('m');
-            socket.emit('chat message', input.value);
-            input.value = '';
-            return false;
-        };
+        socket.on('connected',function (id) {
+            $('#'+id).addClass('connected');
+        });
 
-        //Private
-        document.getElementById('form_msg_private').onsubmit = function(){
-            var input = document.getElementById('m_private');
-            var id = document.getElementById('m_private').getAttribute('data-socketId');
-            socket.emit('send private message', {'socketId': id,'msg': input.value});
+        socket.on('disconnected',function (id) {
+            $('#'+id).removeClass('connected');
+        });
 
-            elChild = document.createElement("li");
-            elChild.innerHTML = input.value;
-            document.getElementById('messages_private').appendChild(elChild);
-
-            input.value = '';
-            return false;
-        };
-
-        $('body').on('click','.online',function () {
-            var id = $(this).attr('id');
-            if(id != 'all'){
-                $('#messages').hide();
-                $('#form_msg').hide();
-                $('#messages_private').show();
-                $('#form_msg_private').show();
-                $('#form_msg_private input').attr('data-socketId', id);
+        socket.on('typing',function (typing) {
+            if(typing){
+                $('#typing').show();
             }else{
-                $('#messages_private').hide();
-                $('#form_msg_private').hide();
-                $('#messages').show();
-                $('#form_msg').show();
+                $('#typing').hide();
             }
         });
 
-        //Private Message
-        socket.on('send private message', function(msg){
-//            alert(msg);
-//            var code = msg.split(':');
-//            if(code[1].trim() == 'refresh'){
-//                location.reload();
-//            }else{
-            elChild = document.createElement("li");
-            elChild.innerHTML = msg;
-            document.getElementById('messages_private').appendChild(elChild);
-//                audio.play();
-//            }
+        $('.edit-user').on('click',function (e) {
+            e.preventDefault();
+
+            $('.chat-content').hide();
+
+            var url = $(this).attr('href');
+
+            $('.page-content').load(url);
         });
 
-        //Public Message
-        socket.on('chat message', function(msg){
-//            var code = msg.split(':');
-//            if(code[1].trim() == 'refresh'){
-//                location.reload();
-//            }else{
+        var timeout;
+        $("#m").keypress(function (e) {
+            var id = this.getAttribute('data-to');
+            if (e.which !== 13) {
+                typing = true; // we know the user is typing because they have pressed a key but not 'Enter'
+                socket.emit("typing", {'typing':true,'id':id});
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    socket.emit("typing", {'typing':false,'id':id});
+                }, 1500);
+            } else {
+                clearTimeout(timeout); // no need to fire the timeoutFunction twice (as we do it on the next line)
+                socket.emit("typing", {'typing':false,'id':id});
+            }
+        });
+
+        document.getElementById('form_msg').onsubmit = function(){
+            var input = document.getElementById('m');
+            var to = document.getElementById('m').getAttribute('data-to');
+            socket.emit('chat message', {'msg':input.value,'to':to});
+
             elChild = document.createElement("li");
-            elChild.innerHTML = msg;
+            elChild.innerHTML = '<%= user[0].name; %> : '+input.value;
             document.getElementById('messages').appendChild(elChild);
+
             var elb = document.querySelector('.mensages-base');
             var elm = document.querySelector('.mensages-base ul');
             var ell = document.querySelector('.mensages-base ul li');
@@ -139,22 +145,77 @@
             if((elm.clientHeight - elb.clientHeight) - ell.clientHeight == elb.scrollTop || elm.clientHeight - ell.clientHeight <= elb.clientHeight) {
                 elb.scrollTop = elb.scrollHeight;
             }
-//                audio.play();
-//            }
+
+
+            input.value = '';
+            return false;
+        };
+
+        $('.user-contact.active').each(function () {
+            var id = $(this).attr('id');
+            $('#form_msg input').attr('data-to', id);
+
+            $('#messages').attr('class','messages'+id);
+
+            $.getJSON("/get-msg?idFrom=<%= user[0].id; %>&idTo="+id, function( data ) {
+                $.each( data, function( key, val ) {
+                    $('.messages'+id).append("<li>"+val.name + ' : '+ val.msg + "</li>");
+                });
+            });
         });
 
-        socket.on('user online', function (userOnline) {
+        $('.user-contact').on('click',function () {
+            $('#messages').empty();
+
+            $('.page-content').empty();
+
+            $('.chat-content').show();
+
+
+            $('.user-contact').removeClass('active');
+            $(this).addClass('active');
+            var id = $(this).attr('id');
+
+            $('#messages').attr('class','messages'+id);
+
+            $('#form_msg input').attr('data-to', id);
+            $.getJSON("/get-msg?idFrom=<%= user[0].id; %>&idTo="+id, function( data ) {
+                $.each( data, function( key, val ) {
+                    $('.messages'+id).append("<li>"+val.name + ' : '+ val.msg + "</li>");
+                });
+            });
+        });
+
+        $('body').on('click','.user',function () {
+            var id = $(this).attr('id');
+            $('#form_msg input').attr('data-to', id);
+        });
+
+        //Public Message
+        socket.on('chat message', function(data){
             elChild = document.createElement("li");
-            elChild.setAttribute('id',userOnline.id);
-            elChild.setAttribute('class','online');
-            elChild.innerHTML = userOnline.name+' Online';
-            document.getElementById('users').appendChild(elChild);
+            elChild.innerHTML = data.msg;
+            document.querySelector('.messages'+data.from).appendChild(elChild);
+
+            var count = $('.user-'+data.from).find('b').text();
+
+            if(count){
+                count = parseInt(count) + 1;
+                $('.user-'+data.from).find('b').html(count);
+            }else{
+                $('.user-'+data.from).prepend('<b>1</b>');
+            }
+
+            var elb = document.querySelector('.mensages-base');
+            var elm = document.querySelector('.mensages-base ul');
+            var ell = document.querySelector('.mensages-base ul li');
+
+            if((elm.clientHeight - elb.clientHeight) - ell.clientHeight == elb.scrollTop || elm.clientHeight - ell.clientHeight <= elb.clientHeight) {
+                elb.scrollTop = elb.scrollHeight;
+            }
+            audio.play();
         });
 
-        socket.on('user offline', function (userOffline) {
-            var el = document.getElementById(userOffline);
-            el.parentNode.removeChild(el);
-        });
     });
 </script>
 </body>
