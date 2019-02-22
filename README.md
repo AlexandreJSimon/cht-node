@@ -2,5 +2,5 @@
 Chat criado com o objetivo de estudar node.<br>
 Este chat foi desenvolvido utilizando WebSoket.
 
-<h1>Base de Dados</h1>
+<h2>Base de Dados</h2>
 Mysql
